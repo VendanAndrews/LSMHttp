@@ -28,8 +28,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Program Files\LSModule\19\bin;$(ExecutablePath)</ExecutablePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Vendan\Desktop\lloyd-yajl-8b48967\build\yajl-2.0.5\include;C:\Users\Vendan\Desktop\curl\include;C:\Program Files\LSModule\19\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Vendan\Desktop\lloyd-yajl-8b48967\build\yajl-2.0.5\lib\Debug;C:\Users\Vendan\Desktop\curl\lib;C:\Program Files\LSModule\19\lib\vs10;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\openssl_lib\include;C:\Users\Vendan\Desktop\lloyd-yajl-8b48967\build\yajl-2.0.5\include;C:\Users\Vendan\Desktop\curl-7.26.0\include;C:\Program Files\LSModule\19\include;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Vendan\Desktop\lloyd-yajl-8b48967\build\yajl-2.0.5\lib\Release;C:\Users\Vendan\Desktop\curl-7.26.0\lib\LIB-Release;C:\Program Files\LSModule\19\lib\vs10;$(LibraryPath)</LibraryPath>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     </CustomBuildBeforeTargets>
   </PropertyGroup>
@@ -38,7 +38,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LSM_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;YAJL_SHARED;NDEBUG;_WINDOWS;_USRDLL;LSM_EXPORTS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -47,6 +47,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)LSMHttp.dll</OutputFile>
@@ -56,9 +57,9 @@
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <ImportLibrary>$(OutDir)LSMHTTP.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>libcurl.lib;ws2_32.lib;yajl_s.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;libcurl.lib;yajl.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
       <Command>

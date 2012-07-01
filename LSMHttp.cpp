@@ -12,6 +12,7 @@
 #define MODULE_VERSION "20120625"
 
 #include "LSMHttp.h"
+#include "openssl/crypto.h"
 
 #pragma comment(lib,"LSModule.lib")
 // The mandatory pre-setup function.  Our name is "LSMHttp", and the class is LSMHttp.
@@ -38,11 +39,65 @@ LSTypeDefinition *pIndexType=0;
 LSTypeDefinition *pIteratorType=0;
 JSONLookup *JSONLookupHead=0;
 
-
 LSInterface *pLSInterface=0;
 
 char LSMHttp_Version[]=MODULE_VERSION;
 
+CSemaphore *OpenSSL_Semaphore;
+CSemaphore *OpenSSL_Semaphores;
+CLock *OpenSSL_Locks;
+CLock *OpenSSL_Lock;
+/*
+static HANDLE *lock_cs;
+
+void locking_callback(int mode, int type, const char *file, int line)
+{
+	if (mode & CRYPTO_LOCK)
+	{
+		OpenSSL_Locks[type].Lock();
+	}
+	else
+	{
+		OpenSSL_Locks[type].Unlock();
+	}
+}
+
+void win32_locking_callback(int mode, int type, const char *file, int line)
+{
+	if (mode & CRYPTO_LOCK)
+	{
+		WaitForSingleObject(lock_cs[type],INFINITE);
+	}
+	else
+	{
+		ReleaseMutex(lock_cs[type]);
+	}
+}
+
+void thread_setup(void)
+{
+	int i;
+
+	lock_cs=(HANDLE *)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(HANDLE));
+	for (i=0; i<CRYPTO_num_locks(); i++)
+	{
+		lock_cs[i]=CreateMutex(NULL,FALSE,NULL);
+	}
+
+	CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))win32_locking_callback);
+	/* id callback defined *//*
+}
+
+void thread_cleanup(void)
+{
+	int i;
+
+	CRYPTO_set_locking_callback(NULL);
+	for (i=0; i<CRYPTO_num_locks(); i++)
+		CloseHandle(lock_cs[i]);
+	OPENSSL_free(lock_cs);
+}
+*/
 
 // The constructor of our class.  General initialization cannot be done yet, because we're not given
 // the pointer to the LavishScript interface until it is ready for us to initialize.  Just set the
@@ -80,16 +135,30 @@ bool LSMHttp::Initialize(LSInterface *p_LSInterface)
 	pIteratorType=pLSInterface->FindLSType("iterator");
 	JSONLookupHead=(JSONLookup*)malloc(sizeof(JSONLookup));
 	JSONLookupHead->next = 0;
-	
+
 
 	RegisterEvents();
 	RegisterCommands();
 	RegisterAliases();
 	RegisterDataTypes();
 	RegisterTopLevelObjects();
-    RegisterTriggers();
+	RegisterTriggers();
+
+/*	OpenSSL_Semaphores = new CSemaphore[CRYPTO_num_locks()]();
+	OpenSSL_Locks = new CLock[CRYPTO_num_locks()]();
+	for(int l1 = 0; l1 < CRYPTO_num_locks(); l1++)
+	{
+		OpenSSL_Locks[l1].SetSemaphore(&OpenSSL_Semaphores[l1]);
+	}
+	CRYPTO_set_locking_callback(locking_callback);*/
+
+	//thread_setup();
+
+	OpenSSL_Semaphore = new CSemaphore();
+	OpenSSL_Lock = new CLock(OpenSSL_Semaphore, false);
 
 	curl_global_init(CURL_GLOBAL_ALL);
+	
 
 	printf("LSMHttp version %s Loaded",LSMHttp_Version);
 	return true;
@@ -98,6 +167,7 @@ bool LSMHttp::Initialize(LSInterface *p_LSInterface)
 // shutdown sequence
 void LSMHttp::Shutdown()
 {
+	//thread_cleanup();
 	UnRegisterTopLevelObjects();
 	UnRegisterDataTypes();
 	UnRegisterAliases();
@@ -107,7 +177,7 @@ void LSMHttp::Shutdown()
 void LSMHttp::RegisterCommands()
 {
 	// add any commands
-//	pLSInterface->AddCommand("LSMHttp",CMD_LSMHttp,true,false);
+	//	pLSInterface->AddCommand("LSMHttp",CMD_LSMHttp,true,false);
 #define COMMAND(name,cmd,parse,hide) pLSInterface->AddCommand(name,cmd,parse,hide);
 #include "Commands.h"
 #undef COMMAND
@@ -159,7 +229,7 @@ void LSMHttp::RegisterTriggers()
 void LSMHttp::UnRegisterCommands()
 {
 	// remove commands
-//	pLSInterface->RemoveCommand("LSMHttp");
+	//	pLSInterface->RemoveCommand("LSMHttp");
 #define COMMAND(name,cmd,parse,hide) pLSInterface->RemoveCommand(name);
 #include "Commands.h"
 #undef COMMAND
@@ -179,7 +249,7 @@ void LSMHttp::UnRegisterDataTypes()
 void LSMHttp::UnRegisterTopLevelObjects()
 {
 	// remove Top-Level Objects
-//	pLSInterface->RemoveTopLevelObject("LSMHttp");
+	//	pLSInterface->RemoveTopLevelObject("LSMHttp");
 #define TOPLEVELOBJECT(name,funcname) pLSInterface->RemoveTopLevelObject(name);
 #include "TopLevelObjects.h"
 #undef TOPLEVELOBJECT

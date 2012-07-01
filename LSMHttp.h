@@ -1,7 +1,6 @@
 #pragma once
 #include <LSModule.h>
 #include <windows.h>
-#define CURL_STATICLIB
 #include "curl/curl.h"
 #include "yajl/yajl_tree.h"
 
@@ -53,6 +52,8 @@ extern LSTypeDefinition *pFloatPtrType;
 extern LSTypeDefinition *pBytePtrType;
 extern LSTypeDefinition *pIndexType;
 extern LSTypeDefinition *pIteratorType;
+
+extern CLock *OpenSSL_Lock;
 
 extern char LSMHttp_Version[];
 

@@ -235,13 +235,13 @@ void JSONNode::FreeVariable(LSOBJECTDATA &ObjectData)
 {
 	if(pJSON)
 	{
-		yajl_tree_free(pJSON);
 		JSONLookup* node = JSONLookupHead;
 		while(node = node->next)
 		{
-			if(node->cur == pJSON)
+			if(node->cur == pJSON && node->exists==1)
 			{
 				node->exists = 0;
+//				yajl_tree_free(pJSON);
 			}
 
 		}

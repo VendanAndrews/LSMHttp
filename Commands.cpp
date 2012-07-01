@@ -66,6 +66,7 @@ DWORD WINAPI HTTPSGetThreadRoutine( LPVOID lpParam )
 	CWindowsThread *Thread = (CWindowsThread*)lpParam;
 	CURL *HTTPSGetRequest;
 	char *url = (char *)Thread->Info;
+	OpenSSL_Lock->Lock();
 	HTTPSGetRequest = curl_easy_init();
 	stringstream *HTTPSGetBuffer = new stringstream(stringstream::out);
 
@@ -78,7 +79,8 @@ DWORD WINAPI HTTPSGetThreadRoutine( LPVOID lpParam )
 	curl_easy_setopt(HTTPSGetRequest, CURLOPT_URL, url);
 
 	printf("Error %d", curl_easy_perform(HTTPSGetRequest));
-	curl_easy_cleanup(HTTPSGetRequest);
+	//curl_easy_cleanup(HTTPSGetRequest);
+	OpenSSL_Lock->Unlock();
 
 	pModule->ExecuteLSMHttp_ReceiveEvent(HTTPSGetBuffer->str().c_str());
 	delete HTTPSGetBuffer;
@@ -91,6 +93,7 @@ DWORD WINAPI HTTPSGetJSONThreadRoutine( LPVOID lpParam )
 	CWindowsThread *Thread = (CWindowsThread*)lpParam;
 	CURL *HTTPSGetJSONRequest;
 	char *url = (char *)Thread->Info;
+	OpenSSL_Lock->Lock();
 	HTTPSGetJSONRequest = curl_easy_init();
 	stringstream *HTTPSGetJSONBuffer = new stringstream(stringstream::out);
 
@@ -103,8 +106,8 @@ DWORD WINAPI HTTPSGetJSONThreadRoutine( LPVOID lpParam )
 	curl_easy_setopt(HTTPSGetJSONRequest, CURLOPT_URL, url);
 
 	printf("Error %d", curl_easy_perform(HTTPSGetJSONRequest));
-	curl_easy_cleanup(HTTPSGetJSONRequest);
-
+	//curl_easy_cleanup(HTTPSGetJSONRequest);
+	OpenSSL_Lock->Unlock();
 	yajl_val JSON = yajl_tree_parse(HTTPSGetJSONBuffer->str().c_str(), NULL, NULL);
 
 	pModule->ExecuteLSMHttp_ReceiveJSONEvent(JSON);
@@ -119,6 +122,7 @@ DWORD WINAPI HTTPSGetToFileThreadRoutine( LPVOID lpParam )
 	CURL *HTTPSGetRequest;
 	FILE *output;
 	UrlAndFile *info = (UrlAndFile *)Thread->Info;
+	OpenSSL_Lock->Lock();
 	HTTPSGetRequest = curl_easy_init();
 	output = fopen(info->file, "w+");
 
@@ -129,7 +133,8 @@ DWORD WINAPI HTTPSGetToFileThreadRoutine( LPVOID lpParam )
 	curl_easy_setopt(HTTPSGetRequest, CURLOPT_URL, info->url);
 
 	curl_easy_perform(HTTPSGetRequest);
-	curl_easy_cleanup(HTTPSGetRequest);
+	//curl_easy_cleanup(HTTPSGetRequest);
+	OpenSSL_Lock->Unlock();
 	fclose(output);
 	pModule->ExecuteLSMHttp_DownloadEvent(info->file);
 	free(info->file);
